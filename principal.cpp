@@ -1,6 +1,17 @@
 #include "principal.h"
 #include "ui_principal.h"
 
+#include <QImage>
+#include <QPainter>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QDebug>
+#include <QInputDialog>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QPoint>
+
 #define DEFAULT_ANCHO 3
 
 Principal::Principal(QWidget *parent)
@@ -41,11 +52,8 @@ void Principal::paintEvent(QPaintEvent *event)
 
 void Principal::mousePressEvent(QMouseEvent *event)
 {
-    // Levanta la bandera (para que se pueda dibujar)
     mPuedeDibujar = true;
-    // Captura la posición (punto x,y) del mouse
     mInicial = event->pos();
-    // Acepta el evento
     event->accept();
 }
 
@@ -53,12 +61,13 @@ void Principal::mouseMoveEvent(QMouseEvent *event)
 {
     // Validar si se puede dibujar
     if ( !mPuedeDibujar ) {
-        // Acepta el evento
+        // aceptar el evento
         event->accept();
-        // Salir del método
+        //salir del metodo
         return;
     }
-    // Capturar el punto a donde se mueve el mouse
+
+    // Capturar el punto donde se suelta el mouse
     mFinal = event->pos();
     // Crear un pincel y establecer atributos
     QPen pincel;
@@ -69,7 +78,7 @@ void Principal::mouseMoveEvent(QMouseEvent *event)
     mPainter->drawLine(mInicial, mFinal);
     // Mostrar el número de líneas en la barra de estado
     ui->statusbar->showMessage("Número de líneas: " + QString::number(++mNumLineas));
-    // Actualizar la interfaz (repinta con paintEvent)
+    // Actualizar la interfaz (repintar con paintEvent)
     update();
     // actualizar el punto inicial
     mInicial = mFinal;
@@ -77,7 +86,6 @@ void Principal::mouseMoveEvent(QMouseEvent *event)
 
 void Principal::mouseReleaseEvent(QMouseEvent *event)
 {
-    // Bajar la bandera (no se puede dibujar)
     mPuedeDibujar = false;
     // Aceptar el vento
     event->accept();
@@ -91,7 +99,7 @@ void Principal::on_actionAncho_triggered()
                                   "Ancho del pincel",
                                   "Ingrese el ancho del pincel de dibujo",
                                   mAncho,
-                                  1, 20);
+                                  1, 100);
 }
 
 void Principal::on_actionSalir_triggered()
@@ -115,24 +123,62 @@ void Principal::on_actionNuevo_triggered()
 
 void Principal::on_actionGuardar_triggered()
 {
-    // Abrir cuadro de diálogo para obtener el nombre del archivo
     QString nombreArchivo = QFileDialog::getSaveFileName(this,
                                                          "Guardar imagen",
                                                          QString(),
-                                                         "Imágenes .png (*.png)");
-    // Validar que el nombre del archivo no sea vacío
+                                                         "Imágenes (*.png)");
     if ( !nombreArchivo.isEmpty() ){
-        // Guardar imagen
-        if (mImagen->save(nombreArchivo)){
-            // Si todo va bien, muestra un mensaje de información
+        if (mImagen->save(nombreArchivo))
             QMessageBox::information(this,
                                      "Guardar imagen",
                                      "Archivo almacenado en: " + nombreArchivo);
-        } else{
-            // Si hay algún error, muestro advertencia
+        else
             QMessageBox::warning(this,
                                  "Guardar imagen",
                                  "No se pudo almacenar la imagen.");
-        }
     }
+}
+
+void Principal::on_actionLineas_triggered()
+{
+
+
+    QPen pincel;
+    pincel.setColor(mColor);
+    pincel.setWidth(mAncho);
+
+    QLine linea(mInicial.x(),mInicial.ry(),mFinal.x(),mFinal.ry());
+
+    mPainter->drawLine(linea);
+
+    update();
+}
+
+
+void Principal::on_actionRect_nculos_triggered()
+{
+    QPen pincel;
+     pincel.setColor(mColor);
+     pincel.setWidth(mAncho);
+     // Dibujar una linea
+     mPainter->setPen(pincel);
+     mPainter->drawRect(mInicial.x(),mInicial.y(),mFinal.x()-mInicial.x(),mFinal.y()-mInicial.y());
+
+
+     update();
+}
+
+
+void Principal::on_actionCircunferencias_triggered()
+{
+    QPen pincel;
+    pincel.setColor(mColor);
+    pincel.setWidth(mAncho);
+    // Dibujar una linea
+    mPainter->setPen(pincel);
+
+
+    mPainter->drawEllipse(mInicial.x(),mInicial.y(),mFinal.x()-mInicial.x(),mFinal.y()-mInicial.y());
+
+    update();
 }
