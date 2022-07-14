@@ -2,6 +2,15 @@
 #define PRINCIPAL_H
 
 #include <QMainWindow>
+#include <QImage>
+#include <QPainter>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QDebug>
+#include <QInputDialog>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Principal; }
@@ -33,11 +42,15 @@ private slots:
 
     void on_actionGuardar_triggered();
 
+    void on_actionCircunferencias_triggered();
+
+    void on_actionLibre_checkableChanged(bool checkable);
+
+    void on_actionLibre_triggered();
+
     void on_actionLineas_triggered();
 
     void on_actionRect_nculos_triggered();
-
-    void on_actionCircunferencias_triggered();
 
 private:
     Ui::Principal *ui;
@@ -45,10 +58,12 @@ private:
     QPainter *mPainter;     // Painter de la imagen
     QPoint mInicial;        // Punto incial para dibujar la línea
     QPoint mFinal;          // Punto final para dibujar la línea
-    QPoint mCentro;
+    QPoint mTempInic;
+    QPoint mtempFinal;
     bool mPuedeDibujar;     // Determina si debe o no dibujar
     int mAncho;             // Define el ancho del pincel
     QColor mColor;          // Define el color del pincel
     int mNumLineas;         // Cuenta el número de líneas
+    bool mPuedel;
 };
 #endif // PRINCIPAL_H
